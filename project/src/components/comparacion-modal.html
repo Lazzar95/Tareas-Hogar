@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparación Modal - Antes vs Ahora</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #fef6f3 0%, #f0f7fb 100%);
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 3rem;
+            color: #E77447;
+            margin-bottom: 2rem;
+        }
+
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        .side {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .side-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .side-header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .bad {
+            color: #dc2626;
+        }
+
+        .good {
+            color: #16a34a;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .badge-bad {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .badge-good {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .mockup {
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 20px;
+            min-height: 600px;
+        }
+
+        .mockup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+            margin-bottom: 20px;
+        }
+
+        .mockup-title {
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .mockup-close {
+            font-size: 1.5rem;
+            color: #9ca3af;
+        }
+
+        .field {
+            margin-bottom: 15px;
+        }
+
+        .label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+        }
+
+        .input-large {
+            padding: 16px 20px;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            resize: none;
+            font-size: 0.9rem;
+            min-height: 60px;
+        }
+
+        .category-grid {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .grid-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .grid-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .category-item {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1.8rem;
+        }
+
+        .category-item-large {
+            flex-direction: column;
+            gap: 6px;
+            padding: 12px;
+        }
+
+        .category-text {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #6b7280;
+        }
+
+        .select-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .select-full {
+            grid-template-columns: 1fr;
+        }
+
+        .select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 0.9rem;
+        }
+
+        .button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #E77447 0%, #f39268 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .button-large {
+            padding: 20px;
+            font-size: 1.1rem;
+        }
+
+        .scroll-indicator {
+            text-align: center;
+            color: #dc2626;
+            font-weight: 600;
+            margin: 15px 0;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .metrics {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .metrics h2 {
+            text-align: center;
+            font-size: 2rem;
+            color: #E77447;
+            margin-bottom: 30px;
+        }
+
+        .metric-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 20px;
+        }
+
+        .metric {
+            text-align: center;
+            padding: 20px;
+            border-radius: 16px;
+        }
+
+        .metric-bad {
+            background: #fee2e2;
+        }
+
+        .metric-good {
+            background: #dcfce7;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .metric-label {
+            font-size: 1rem;
+            color: #6b7280;
+        }
+
+        .improvement {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: #E77447;
+            color: white;
+            border-radius: 16px;
+        }
+
+        .improvement-value {
+            font-size: 3rem;
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+
+            .metric-row {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Modal Rediseñado: Antes vs Ahora</h1>
+
+        <div class="comparison">
+            <!-- ANTES -->
+            <div class="side">
+                <div class="side-header">
+                    <h2 class="bad">❌ ANTES</h2>
+                    <span class="badge badge-bad">Reactante</span>
+                </div>
+
+                <div class="mockup">
+                    <div class="mockup-header">
+                        <span class="mockup-title">Nueva tarea</span>
+                        <span class="mockup-close">✕</span>
+                    </div>
+
+                    <div class="field">
+                        <div class="label">¿Qué hay que hacer?</div>
+                        <input type="text" class="input" placeholder="Ej: Limpiar el baño">
+                    </div>
+
+                    <div class="field">
+                        <div class="label">Detalles (opcional)</div>
+                        <textarea class="textarea" placeholder="Notas adicionales..."></textarea>
+                    </div>
+
+                    <div class="scroll-indicator">↓ SCROLL NECESARIO ↓</div>
+
+                    <div class="field">
+                        <div class="label">Categoría</div>
+                        <div class="category-grid grid-4">
+                            <div class="category-item">🛒</div>
+                            <div class="category-item">✨</div>
+                            <div class="category-item">👨‍🍳</div>
+                            <div class="category-item">🗑️</div>
+                            <div class="category-item">🍽️</div>
+                            <div class="category-item">🧺</div>
+                            <div class="category-item">👔</div>
+                            <div class="category-item">👗</div>
+                        </div>
+                    </div>
+
+                    <div class="scroll-indicator">↓ MÁS SCROLL ↓</div>
+
+                    <div class="field">
+                        <div class="label">¿Quién lo hace?</div>
+                        <select class="select">
+                            <option>Lázaro</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <div class="label">Frecuencia</div>
+                        <select class="select">
+                            <option>Una vez</option>
+                        </select>
+                    </div>
+
+                    <button class="button">Añadir tarea</button>
+                </div>
+            </div>
+
+            <!-- AHORA -->
+            <div class="side">
+                <div class="side-header">
+                    <h2 class="good">✅ AHORA</h2>
+                    <span class="badge badge-good">Sin reactancia</span>
+                </div>
+
+                <div class="mockup">
+                    <div class="mockup-header">
+                        <span class="mockup-title">Nueva tarea</span>
+                        <span class="mockup-close">✕</span>
+                    </div>
+
+                    <div class="field">
+                        <input type="text" class="input input-large" placeholder="¿Qué hay que hacer?">
+                    </div>
+
+                    <div class="field">
+                        <div class="label" style="font-size: 0.8rem; color: #9ca3af;">Tipo de tarea</div>
+                        <div class="category-grid grid-3">
+                            <div class="category-item category-item-large">
+                                <span>🛒</span>
+                                <span class="category-text">compras</span>
+                            </div>
+                            <div class="category-item category-item-large">
+                                <span>✨</span>
+                                <span class="category-text">limpieza</span>
+                            </div>
+                            <div class="category-item category-item-large">
+                                <span>👨‍🍳</span>
+                                <span class="category-text">cocina</span>
+                            </div>
+                            <div class="category-item category-item-large">
+                                <span>🗑️</span>
+                                <span class="category-text">basura</span>
+                            </div>
+                            <div class="category-item category-item-large">
+                                <span>🍽️</span>
+                                <span class="category-text">fregar</span>
+                            </div>
+                            <div class="category-item category-item-large">
+                                <span>🧺</span>
+                                <span class="category-text">lavadora</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <div class="select-row">
+                            <div>
+                                <div class="label" style="font-size: 0.8rem; color: #9ca3af;">¿Quién?</div>
+                                <select class="select">
+                                    <option>Lázaro</option>
+                                </select>
+                            </div>
+                            <div>
+                                <div class="label" style="font-size: 0.8rem; color: #9ca3af;">¿Cuándo?</div>
+                                <select class="select">
+                                    <option>Una vez</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="button button-large">✓ Añadir</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MÉTRICAS -->
+        <div class="metrics">
+            <h2>📊 Impacto Medido</h2>
+
+            <div class="metric-row">
+                <div class="metric metric-bad">
+                    <div class="metric-value bad">~11s</div>
+                    <div class="metric-label">Tiempo antes</div>
+                </div>
+                <div class="metric metric-good">
+                    <div class="metric-value good">~6.5s</div>
+                    <div class="metric-label">Tiempo ahora</div>
+                </div>
+            </div>
+
+            <div class="metric-row">
+                <div class="metric metric-bad">
+                    <div class="metric-value bad">5</div>
+                    <div class="metric-label">Scrolls necesarios</div>
+                </div>
+                <div class="metric metric-good">
+                    <div class="metric-value good">0</div>
+                    <div class="metric-label">Scrolls necesarios</div>
+                </div>
+            </div>
+
+            <div class="metric-row">
+                <div class="metric metric-bad">
+                    <div class="metric-value bad">~700px</div>
+                    <div class="metric-label">Altura modal</div>
+                </div>
+                <div class="metric metric-good">
+                    <div class="metric-value good">~500px</div>
+                    <div class="metric-label">Altura modal</div>
+                </div>
+            </div>
+
+            <div class="improvement">
+                <div style="font-size: 1.2rem; margin-bottom: 10px;">🎯 MEJORA TOTAL</div>
+                <div class="improvement-value">41%</div>
+                <div style="font-size: 1.1rem; margin-top: 10px;">MÁS RÁPIDO</div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 60px; color: #6b7280;">
+            <p style="font-size: 1.2rem;">
+                <strong>Resultado:</strong> Menos fricción cognitiva, más acción directa 🚀
+            </p>
+        </div>
+    </div>
+</body>
+</html>
