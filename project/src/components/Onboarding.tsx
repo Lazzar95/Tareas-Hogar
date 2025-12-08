@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { supabase, generateFamilyCode } from '../lib/supabase';
+import { generateFamilyCode } from '../lib/supabase';
 import type { Family, FamilyMember } from '../types';
 import { MEMBER_COLORS } from '../types';
 
@@ -43,27 +43,23 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
 
     try {
       const code = generateFamilyCode();
+      const familyId = `family_${Date.now()}`;
 
-      const { data: family, error: familyError } = await supabase
-        .from('families')
-        .insert({ name: familyName, code })
-        .select()
-        .single();
+      // Crear datos locales sin Supabase
+      const family: Family = {
+        id: familyId,
+        name: familyName,
+        code,
+        created_at: new Date().toISOString()
+      };
 
-      if (familyError) throw familyError;
-
-      const memberInserts = validMembers.map((m, i) => ({
-        family_id: family.id,
+      const createdMembers: FamilyMember[] = validMembers.map((m, i) => ({
+        id: `member_${Date.now()}_${i}`,
+        family_id: familyId,
         name: m.name,
-        color_index: i % MEMBER_COLORS.length
+        color_index: i % MEMBER_COLORS.length,
+        created_at: new Date().toISOString()
       }));
-
-      const { data: createdMembers, error: membersError } = await supabase
-        .from('family_members')
-        .insert(memberInserts)
-        .select();
-
-      if (membersError) throw membersError;
 
       onComplete(family, createdMembers);
     } catch (err: any) {
@@ -80,28 +76,9 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
     setError('');
 
     try {
-      const { data: family, error: familyError } = await supabase
-        .from('families')
-        .select('*')
-        .eq('code', joinCode.toUpperCase())
-        .maybeSingle();
-
-      if (familyError) throw familyError;
-      if (!family) {
-        setError('Código no válido');
-        setLoading(false);
-        return;
-      }
-
-      const { data: familyMembers, error: membersError } = await supabase
-        .from('family_members')
-        .select('*')
-        .eq('family_id', family.id)
-        .order('created_at', { ascending: true });
-
-      if (membersError) throw membersError;
-
-      onComplete(family, familyMembers);
+      // Simulación de unirse sin base de datos
+      // En una versión real, esto buscaría en Supabase
+      setError('La función de unirse estará disponible cuando conectes la base de datos');
     } catch (err: any) {
       setError(err.message);
     } finally {

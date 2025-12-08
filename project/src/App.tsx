@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { supabase } from './lib/supabase';
 import type { Family, FamilyMember } from './types';
 import Onboarding from './components/Onboarding';
 import Dashboard from './components/Dashboard';
@@ -15,41 +14,31 @@ function App() {
   }, []);
 
   const loadFamilyFromStorage = async () => {
-    const familyCode = localStorage.getItem('familyCode');
-    if (familyCode) {
+    // Cargar desde localStorage en lugar de Supabase
+    const familyDataStr = localStorage.getItem('familyData');
+    const membersDataStr = localStorage.getItem('membersData');
+    
+    if (familyDataStr && membersDataStr) {
       try {
-        const { data: familyData } = await supabase
-          .from('families')
-          .select('*')
-          .eq('code', familyCode)
-          .maybeSingle();
-
-        if (familyData) {
-          setFamily(familyData);
-          await loadMembers(familyData.id);
-        }
+        const familyData = JSON.parse(familyDataStr);
+        const membersData = JSON.parse(membersDataStr);
+        
+        setFamily(familyData);
+        setMembers(membersData);
       } catch (error) {
-        console.error('Error loading family:', error);
+        console.error('Error loading family from localStorage:', error);
       }
     }
     setLoading(false);
   };
 
-  const loadMembers = async (familyId: string) => {
-    const { data } = await supabase
-      .from('family_members')
-      .select('*')
-      .eq('family_id', familyId)
-      .order('created_at', { ascending: true });
-
-    if (data) {
-      setMembers(data);
-    }
-  };
-
   const handleOnboardingComplete = async (familyData: Family, membersData: FamilyMember[]) => {
     setFamily(familyData);
     setMembers(membersData);
+    
+    // Guardar en localStorage
+    localStorage.setItem('familyData', JSON.stringify(familyData));
+    localStorage.setItem('membersData', JSON.stringify(membersData));
     localStorage.setItem('familyCode', familyData.code);
   };
 
@@ -65,3 +54,4 @@ function App() {
 }
 
 export default App;
+
