@@ -4,11 +4,14 @@ import type { Family, FamilyMember } from './types';
 import Onboarding from './components/Onboarding';
 import Dashboard from './components/Dashboard';
 import LoadingSpinner from './components/LoadingSpinner';
+import UpdatePrompt from './components/UpdatePrompt';
+import { useServiceWorkerUpdate } from './hooks/useServiceWorkerUpdate';
 
 function App() {
   const [family, setFamily] = useState<Family | null>(null);
   const [members, setMembers] = useState<FamilyMember[]>([]);
   const [loading, setLoading] = useState(true);
+  const { showUpdate, update, dismiss } = useServiceWorkerUpdate();
 
   useEffect(() => {
     loadFamilyFromStorage();
@@ -61,7 +64,12 @@ function App() {
     return <Onboarding onComplete={handleOnboardingComplete} />;
   }
 
-  return <Dashboard family={family} members={members} />;
+  return (
+    <>
+      <Dashboard family={family} members={members} />
+      {showUpdate && <UpdatePrompt onUpdate={update} onDismiss={dismiss} />}
+    </>
+  );
 }
 
 export default App;

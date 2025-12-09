@@ -1,11 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import type { Family, FamilyMember, Task, ShoppingItem } from '../types';
+import { MEMBER_COLORS } from '../types';
 import TaskList from './TaskList';
 import ShoppingList from './ShoppingList';
 import Stats from './Stats';
 import AddTaskModal from './AddTaskModal';
 import FamilyCodeModal from './FamilyCodeModal';
+import { useNotifications } from '../hooks/useNotifications';
 
 interface DashboardProps {
   family: Family;
@@ -21,19 +23,50 @@ export default function Dashboard({ family, members }: DashboardProps) {
   const [showAddTask, setShowAddTask] = useState(false);
   const [showFamilyCode, setShowFamilyCode] = useState(false);
   const [notification, setNotification] = useState('');
+  const [currentMember, setCurrentMember] = useState<string>('');
+  const recentEvents = useRef<Set<string>>(new Set());
+  const { permission, requestPermission, showNotification: showBrowserNotification } = useNotifications();
 
   useEffect(() => {
+    // Cargar o solicitar el miembro actual
+    const savedMember = localStorage.getItem(`currentMember_${family.code}`);
+    if (savedMember && members.find(m => m.name === savedMember)) {
+      setCurrentMember(savedMember);
+    } else if (members.length === 1) {
+      setCurrentMember(members[0].name);
+      localStorage.setItem(`currentMember_${family.code}`, members[0].name);
+    }
+
+    // Solicitar permisos de notificación
+    if (permission === 'default') {
+      setTimeout(() => requestPermission(), 2000);
+    }
+
     loadTasks();
     loadShopping();
 
     const tasksSubscription = supabase
       .channel('tasks_changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks', filter: `family_id=eq.${family.id}` }, loadTasks)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'tasks', filter: `family_id=eq.${family.id}` },
+        (payload) => {
+          handleTaskRealtime(payload);
+          loadTasks();
+        }
+      )
       .subscribe();
 
     const shoppingSubscription = supabase
       .channel('shopping_changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'shopping_items', filter: `family_id=eq.${family.id}` }, loadShopping)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'shopping_items', filter: `family_id=eq.${family.id}` },
+        (payload) => {
+          handleShoppingRealtime(payload);
+          loadShopping();
+        }
+      )
       .subscribe();
 
     return () => {
@@ -41,6 +74,85 @@ export default function Dashboard({ family, members }: DashboardProps) {
       shoppingSubscription.unsubscribe();
     };
   }, [family.id]);
+
+  // Evita mostrar notificaciones duplicadas por cambios que hicimos nosotros mismos
+  function isOwnEvent(key: string) {
+    if (recentEvents.current.has(key)) {
+      recentEvents.current.delete(key);
+      return true;
+    }
+    return false;
+  }
+
+  function handleTaskRealtime(payload: any) {
+    const key = `tasks:${payload.eventType}:${payload.new?.id || payload.old?.id}`;
+    if (isOwnEvent(key)) return;
+
+    const newTask = payload.new as Task | null;
+    const oldTask = payload.old as Task | null;
+
+    if (payload.eventType === 'INSERT' && newTask) {
+      const creator = newTask.created_by || 'Alguien';
+      const message = `${creator} añadió tarea para ${newTask.assigned_to}: "${newTask.title}"`;
+      showNotification(message);
+      showBrowserNotification('Nueva tarea 📋', {
+        body: message,
+        tag: `task-${newTask.id}`
+      });
+    }
+
+    if (payload.eventType === 'UPDATE' && newTask && oldTask) {
+      if (oldTask.completed !== newTask.completed) {
+        const updater = newTask.updated_by || newTask.assigned_to;
+        if (newTask.completed) {
+          const message = `✓ ${updater} completó "${newTask.title}"`;
+          showNotification(message);
+          showBrowserNotification('Tarea completada ✅', {
+            body: message,
+            tag: `task-${newTask.id}`
+          });
+        } else {
+          const message = `"${newTask.title}" vuelve a pendiente`;
+          showNotification(message);
+        }
+      }
+    }
+  }
+
+  function handleShoppingRealtime(payload: any) {
+    const key = `shopping_items:${payload.eventType}:${payload.new?.id || payload.old?.id}`;
+    if (isOwnEvent(key)) return;
+
+    const newItem = payload.new as ShoppingItem | null;
+    const oldItem = payload.old as ShoppingItem | null;
+
+    if (payload.eventType === 'INSERT' && newItem) {
+      const creator = newItem.created_by || 'Alguien';
+      const message = `${creator} añadió: "${newItem.name}"`;
+      showNotification(`🛍️ ${message}`);
+      showBrowserNotification('Nueva compra 🛍️', {
+        body: message,
+        tag: `shopping-${newItem.id}`
+      });
+    }
+
+    if (payload.eventType === 'UPDATE' && newItem && oldItem) {
+      if (oldItem.checked !== newItem.checked) {
+        const updater = newItem.updated_by || 'Alguien';
+        if (newItem.checked) {
+          const message = `${updater} marcó como comprado: "${newItem.name}"`;
+          showNotification(`🛒 ${message}`);
+          showBrowserNotification('Comprado ✅', {
+            body: message,
+            tag: `shopping-${newItem.id}`
+          });
+        } else {
+          const message = `"${newItem.name}" vuelve a la lista`;
+          showNotification(`↩️ ${message}`);
+        }
+      }
+    }
+  }
 
   const loadTasks = async () => {
     const { data } = await supabase
@@ -68,25 +180,33 @@ export default function Dashboard({ family, members }: DashboardProps) {
       .insert({
         family_id: family.id,
         name: name.trim(),
-        checked: false
+        checked: false,
+        created_by: currentMember
       })
       .select()
       .single();
 
-    if (data) setShopping(prev => [data, ...prev]);
+    if (data) {
+      setShopping(prev => [data, ...prev]);
+      recentEvents.current.add(`shopping_items:INSERT:${data.id}`);
+    }
   };
 
   const toggleShoppingItem = async (id: string, checked: boolean) => {
     setShopping(prev => prev.map(item => item.id === id ? { ...item, checked: !checked } : item));
     await supabase
       .from('shopping_items')
-      .update({ checked: !checked })
+      .update({ checked: !checked, updated_by: currentMember })
       .eq('id', id);
+
+    recentEvents.current.add(`shopping_items:UPDATE:${id}`);
   };
 
   const deleteShoppingItem = async (id: string) => {
     setShopping(prev => prev.filter(item => item.id !== id));
     await supabase.from('shopping_items').delete().eq('id', id);
+
+    recentEvents.current.add(`shopping_items:DELETE:${id}`);
   };
 
   const toggleTask = async (id: string) => {
@@ -105,9 +225,12 @@ export default function Dashboard({ family, members }: DashboardProps) {
       .from('tasks')
       .update({
         completed: newCompleted,
-        completed_at: newCompleted ? new Date().toISOString() : null
+        completed_at: newCompleted ? new Date().toISOString() : null,
+        updated_by: currentMember
       })
       .eq('id', id);
+
+    recentEvents.current.add(`tasks:UPDATE:${id}`);
 
     if (newCompleted) {
       showNotification(`¡${task.assigned_to} completó "${task.title}"! ✨`);
@@ -117,10 +240,13 @@ export default function Dashboard({ family, members }: DashboardProps) {
   const deleteTask = async (id: string) => {
     setTasks(prev => prev.filter(t => t.id !== id));
     await supabase.from('tasks').delete().eq('id', id);
+
+    recentEvents.current.add(`tasks:DELETE:${id}`);
   };
 
   const addTaskLocal = (task: Task) => {
     setTasks(prev => [task, ...prev]);
+    recentEvents.current.add(`tasks:INSERT:${task.id}`);
   };
 
   const showNotification = (message: string) => {
@@ -140,6 +266,47 @@ export default function Dashboard({ family, members }: DashboardProps) {
   };
 
   const progressColor = getProgressColor();
+
+  const selectMember = (memberName: string) => {
+    setCurrentMember(memberName);
+    localStorage.setItem(`currentMember_${family.code}`, memberName);
+  };
+
+  // Si hay más de un miembro y no hay currentMember, mostrar modal de selección
+  if (members.length > 1 && !currentMember) {
+    return (
+      <div className="min-h-screen bg-mesh flex items-center justify-center p-6">
+        <div className="glass-card-strong max-w-md w-full rounded-4xl p-8 animate-slide-up">
+          <h2 className="font-display text-2xl font-bold text-gray-800 mb-2 text-center">
+            ¿Quién eres?
+          </h2>
+          <p className="text-gray-600 text-center mb-8">
+            Selecciona tu nombre para recibir notificaciones personalizadas
+          </p>
+          <div className="space-y-3">
+            {members.map((member) => {
+              const color = MEMBER_COLORS[member.color_index];
+              return (
+                <button
+                  key={member.id}
+                  onClick={() => selectMember(member.name)}
+                  className="w-full p-4 rounded-2xl bg-white/60 hover:bg-white/80 border-2 border-transparent hover:border-mint-400 transition-all flex items-center gap-4 group"
+                >
+                  <div
+                    className={`w-14 h-14 rounded-2xl flex items-center justify-center font-display font-bold text-xl transition-transform group-hover:scale-110`}
+                    style={{ backgroundColor: color.bg, color: color.text }}
+                  >
+                    {member.name.charAt(0)}
+                  </div>
+                  <span className="font-semibold text-lg text-gray-800">{member.name}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-mesh pb-32 relative overflow-hidden">
@@ -302,6 +469,7 @@ export default function Dashboard({ family, members }: DashboardProps) {
         <AddTaskModal
           family={family}
           members={members}
+          currentMember={currentMember}
           onCreated={addTaskLocal}
           onClose={() => setShowAddTask(false)}
         />

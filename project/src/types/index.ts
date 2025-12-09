@@ -24,6 +24,8 @@ export interface Task {
   completed: boolean;
   completed_at: string | null;
   created_at: string;
+  created_by?: string;
+  updated_by?: string;
 }
 
 export interface ShoppingItem {
@@ -32,6 +34,8 @@ export interface ShoppingItem {
   name: string;
   checked: boolean;
   created_at: string;
+  created_by?: string;
+  updated_by?: string;
 }
 
 // Paleta de colores moderna anti-reactante

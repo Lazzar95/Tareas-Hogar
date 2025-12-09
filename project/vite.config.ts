@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icon-192x192.svg', 'icon-512x512.svg'],
       manifest: {
         name: 'Tareas Hogar - Organización Familiar',

@@ -8,9 +8,10 @@ interface AddTaskModalProps {
   members: FamilyMember[];
   onCreated: (task: Task) => void;
   onClose: () => void;
+  currentMember?: string;
 }
 
-export default function AddTaskModal({ family, members, onCreated, onClose }: AddTaskModalProps) {
+export default function AddTaskModal({ family, members, onCreated, onClose, currentMember }: AddTaskModalProps) {
   const [formData, setFormData] = useState({
     title: '',
     category: 'limpieza',
@@ -33,7 +34,8 @@ export default function AddTaskModal({ family, members, onCreated, onClose }: Ad
           category: formData.category,
           assigned_to: formData.assigned_to,
           frequency: formData.frequency,
-          completed: false
+          completed: false,
+          created_by: currentMember
         })
         .select()
         .single();
