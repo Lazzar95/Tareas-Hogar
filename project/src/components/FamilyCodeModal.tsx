@@ -8,48 +8,105 @@ interface FamilyCodeModalProps {
 export default function FamilyCodeModal({ familyCode, onClose }: FamilyCodeModalProps) {
   const [copied, setCopied] = useState(false);
 
-  const copyCode = () => {
-    navigator.clipboard.writeText(familyCode);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const copyCode = async () => {
+    try {
+      await navigator.clipboard.writeText(familyCode);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Fallback para dispositivos sin clipboard API
+      const textArea = document.createElement('textarea');
+      textArea.value = familyCode;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const shareCode = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Tareas Hogar',
+          text: `¡Únete a mi hogar! Usa el código: ${familyCode}`,
+          url: window.location.href
+        });
+      } catch {
+        // Usuario canceló el share
+      }
+    } else {
+      copyCode();
+    }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-6 z-50 animate-fade-in">
-      <div className="bg-white/95 backdrop-blur-sm rounded-3xl p-8 max-w-md w-full shadow-2xl border border-white/80 animate-scale-in">
-        <div className="text-center mb-6">
-          <div className="text-6xl mb-4">🔗</div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">
-            Código de tu hogar
-          </h2>
-          <p className="text-gray-600">
-            Comparte este código para que otros se unan
+    <div 
+      className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-6 z-50 animate-fade-in"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div className="glass-card-strong p-8 max-w-sm w-full animate-scale-in relative overflow-hidden">
+        {/* Blob decorativo */}
+        <div className="blob blob-lavender w-48 h-48 -top-24 -right-24" />
+        
+        <div className="relative z-10">
+          <div className="text-center mb-8">
+            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-lavender-400 to-lavender-500 flex items-center justify-center text-4xl shadow-glow-lavender mx-auto mb-6 animate-bounce-soft">
+              🔗
+            </div>
+            <h2 className="font-display text-2xl font-bold text-gray-800 mb-2">
+              Código de tu hogar
+            </h2>
+            <p className="text-gray-500 text-sm">
+              Comparte este código para que otros se unan
+            </p>
+          </div>
+
+          {/* Código destacado */}
+          <div className="glass-card p-6 mb-6 text-center relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-lavender-50 to-mint-50 opacity-50" />
+            <p className="relative text-4xl font-mono font-bold text-gradient tracking-[0.3em]">
+              {familyCode}
+            </p>
+          </div>
+
+          {/* Botones */}
+          <div className="space-y-3">
+            <button
+              onClick={shareCode}
+              className="btn-lavender w-full"
+            >
+              {copied ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  ¡Copiado!
+                </span>
+              ) : (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                  </svg>
+                  Compartir código
+                </span>
+              )}
+            </button>
+
+            <button
+              onClick={onClose}
+              className="btn-secondary w-full"
+            >
+              Cerrar
+            </button>
+          </div>
+
+          <p className="text-xs text-gray-400 text-center mt-6">
+            💡 El código está siempre visible en el header
           </p>
         </div>
-
-        <div className="bg-white/70 rounded-2xl p-6 mb-6 text-center border border-gray-200">
-          <p className="text-5xl font-mono font-bold text-orange-500 tracking-wider">
-            {familyCode}
-          </p>
-        </div>
-
-        <button
-          onClick={copyCode}
-          className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-4 rounded-xl font-semibold mb-4 shadow-lg hover:shadow-xl transition-all"
-        >
-          {copied ? '✓ Copiado' : 'Copiar código'}
-        </button>
-
-        <button
-          onClick={onClose}
-          className="w-full bg-white/70 py-4 rounded-xl font-semibold text-gray-600 hover:text-gray-800 transition-colors border border-gray-200"
-        >
-          Cerrar
-        </button>
-
-        <p className="text-xs text-gray-500 text-center mt-4">
-          También lo encontrarás en el header tocando el código
-        </p>
       </div>
     </div>
   );

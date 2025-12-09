@@ -109,132 +109,198 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
     }
   };
 
+  // Pantalla de bienvenida
   if (step === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-blue-50 flex items-center justify-center p-6">
-        <div className="w-full max-w-md animate-fade-in">
-          <div className="text-center mb-10">
-            <div className="text-7xl mb-6">🏠</div>
-            <h1 className="text-5xl font-bold text-gray-800 mb-3">
-              Tareas Hogar
+      <div className="min-h-screen bg-mesh flex items-center justify-center p-6 relative overflow-hidden">
+        {/* Blobs decorativos */}
+        <div className="blob blob-mint w-72 h-72 -top-20 -left-20" />
+        <div className="blob blob-lavender w-96 h-96 -bottom-32 -right-32" />
+        <div className="blob blob-coral w-64 h-64 top-1/2 left-1/3 opacity-20" />
+
+        <div className="w-full max-w-md animate-slide-up relative z-10">
+          <div className="text-center mb-12">
+            {/* Logo animado */}
+            <div className="relative inline-block mb-8">
+              <div className="text-8xl animate-float">🏠</div>
+              <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-16 h-3 bg-black/5 rounded-full blur-sm" />
+            </div>
+            
+            <h1 className="font-display text-5xl font-extrabold mb-4">
+              <span className="text-gradient">Tareas</span>
+              <span className="text-gray-800"> Hogar</span>
             </h1>
-            <p className="text-gray-600 text-lg">
-              Tu casa organizada.<br />Sin discusiones.
+            
+            <p className="text-gray-500 text-lg font-medium">
+              Organiza tu casa.<br />
+              <span className="text-mint-600">Sin dramas.</span>
             </p>
           </div>
 
           <div className="space-y-4">
             <button
               onClick={() => { setMode('create'); setStep(1); }}
-              className="w-full bg-white/70 backdrop-blur-sm rounded-3xl p-6 text-left border border-white/80 shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+              className="card-interactive w-full text-left group"
             >
-              <div className="text-4xl mb-3">✨</div>
-              <h3 className="font-bold text-xl text-gray-800 mb-2">
-                Crear mi hogar
-              </h3>
-              <p className="text-gray-600">
-                Empieza desde cero y genera un código para compartir
-              </p>
+              <div className="flex items-start gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-mint-400 to-mint-500 flex items-center justify-center text-2xl shadow-glow group-hover:scale-110 transition-transform">
+                  ✨
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-display font-bold text-xl text-gray-800 mb-1">
+                    Crear mi hogar
+                  </h3>
+                  <p className="text-gray-500 text-sm">
+                    Empieza desde cero y comparte el código
+                  </p>
+                </div>
+                <div className="text-gray-300 group-hover:text-mint-500 group-hover:translate-x-1 transition-all">
+                  →
+                </div>
+              </div>
             </button>
 
             <button
               onClick={() => { setMode('join'); setStep(1); }}
-              className="w-full bg-white/70 backdrop-blur-sm rounded-3xl p-6 text-left border border-white/80 shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+              className="card-interactive w-full text-left group"
             >
-              <div className="text-4xl mb-3">🔗</div>
-              <h3 className="font-bold text-xl text-gray-800 mb-2">
-                Unirme a un hogar
-              </h3>
-              <p className="text-gray-600">
-                Ya tengo un código de mi familia o piso
-              </p>
+              <div className="flex items-start gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-lavender-400 to-lavender-500 flex items-center justify-center text-2xl shadow-glow-lavender group-hover:scale-110 transition-transform">
+                  🔗
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-display font-bold text-xl text-gray-800 mb-1">
+                    Unirme a un hogar
+                  </h3>
+                  <p className="text-gray-500 text-sm">
+                    Tengo un código de mi familia o piso
+                  </p>
+                </div>
+                <div className="text-gray-300 group-hover:text-lavender-500 group-hover:translate-x-1 transition-all">
+                  →
+                </div>
+              </div>
             </button>
           </div>
+
+          {/* Footer sutil */}
+          <p className="text-center text-gray-400 text-sm mt-12">
+            Hecho con 💚 para hogares felices
+          </p>
         </div>
       </div>
     );
   }
 
+  // Pantalla de unirse
   if (mode === 'join' && step === 1) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-blue-50 flex items-center justify-center p-6">
-        <div className="w-full max-w-md animate-fade-in">
+      <div className="min-h-screen bg-mesh flex items-center justify-center p-6 relative overflow-hidden">
+        <div className="blob blob-lavender w-80 h-80 -top-20 -right-20" />
+        <div className="blob blob-mint w-64 h-64 -bottom-20 -left-20" />
+
+        <div className="w-full max-w-md animate-slide-up relative z-10">
           <button
             onClick={() => setStep(0)}
-            className="mb-6 text-gray-600 hover:text-gray-800 flex items-center gap-2"
+            className="mb-8 text-gray-500 hover:text-gray-800 flex items-center gap-2 font-medium transition-colors haptic"
           >
-            ← Volver
+            <span className="text-xl">←</span> Volver
           </button>
 
-          <div className="text-center mb-8">
-            <div className="text-6xl mb-4">🔗</div>
-            <h2 className="text-3xl font-bold text-gray-800 mb-2">
+          <div className="text-center mb-10">
+            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-lavender-400 to-lavender-500 flex items-center justify-center text-4xl shadow-glow-lavender mx-auto mb-6 animate-bounce-soft">
+              🔗
+            </div>
+            <h2 className="font-display text-3xl font-bold text-gray-800 mb-2">
               Unirte a tu hogar
             </h2>
-            <p className="text-gray-600">
-              Pide el código a alguien de tu familia o piso
+            <p className="text-gray-500">
+              Pide el código a alguien de tu familia
             </p>
           </div>
 
-          <div className="bg-white/70 backdrop-blur-sm rounded-3xl p-8 shadow-xl mb-6 border border-white/80">
-            <label className="block text-gray-700 font-semibold mb-3">
+          <div className="glass-card-strong p-8 mb-6">
+            <label className="block text-gray-700 font-semibold mb-3 text-sm uppercase tracking-wide">
               Código del hogar
             </label>
             <input
               type="text"
               value={joinCode}
               onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-              placeholder="Ej: ABC123"
-              className="w-full px-5 py-4 rounded-2xl border-2 border-gray-200 focus:border-orange-400 focus:ring-4 focus:ring-orange-100 outline-none text-lg font-mono text-center uppercase transition-all"
+              placeholder="ABC123"
+              className="input-field text-center text-2xl font-mono tracking-[0.5em] uppercase"
               maxLength={6}
               autoFocus
             />
-            {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+            {error && (
+              <p className="text-coral-500 text-sm mt-3 flex items-center gap-2">
+                <span>⚠️</span> {error}
+              </p>
+            )}
           </div>
 
           <button
             onClick={handleJoin}
             disabled={!joinCode.trim() || loading}
-            className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-5 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn-lavender w-full text-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Entrando...' : 'Entrar al hogar'}
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Entrando...
+              </span>
+            ) : (
+              'Entrar al hogar'
+            )}
           </button>
         </div>
       </div>
     );
   }
 
+  // Pantalla de crear - paso 1: nombre
   if (mode === 'create' && step === 1) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-blue-50 flex items-center justify-center p-6">
-        <div className="w-full max-w-md animate-fade-in">
+      <div className="min-h-screen bg-mesh flex items-center justify-center p-6 relative overflow-hidden">
+        <div className="blob blob-mint w-80 h-80 -top-20 -left-20" />
+        <div className="blob blob-coral w-64 h-64 -bottom-20 -right-20" />
+
+        <div className="w-full max-w-md animate-slide-up relative z-10">
           <button
             onClick={() => setStep(0)}
-            className="mb-6 text-gray-600 hover:text-gray-800 flex items-center gap-2"
+            className="mb-8 text-gray-500 hover:text-gray-800 flex items-center gap-2 font-medium transition-colors haptic"
           >
-            ← Volver
+            <span className="text-xl">←</span> Volver
           </button>
 
-          <div className="text-center mb-8">
-            <div className="text-6xl mb-4">🏡</div>
-            <h2 className="text-3xl font-bold text-gray-800 mb-2">
+          {/* Progress indicator */}
+          <div className="flex gap-2 mb-8">
+            <div className="flex-1 h-1.5 rounded-full bg-mint-500" />
+            <div className="flex-1 h-1.5 rounded-full bg-gray-200" />
+          </div>
+
+          <div className="text-center mb-10">
+            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-mint-400 to-mint-500 flex items-center justify-center text-4xl shadow-glow mx-auto mb-6 animate-bounce-soft">
+              🏡
+            </div>
+            <h2 className="font-display text-3xl font-bold text-gray-800 mb-2">
               Nombra tu hogar
             </h2>
-            <p className="text-gray-600">
+            <p className="text-gray-500">
               Elige un nombre que todos reconozcan
             </p>
           </div>
 
-          <div className="bg-white/70 backdrop-blur-sm rounded-3xl p-8 shadow-xl mb-6 border border-white/80">
-            <label className="block text-gray-700 font-semibold mb-3">
+          <div className="glass-card-strong p-8 mb-6">
+            <label className="block text-gray-700 font-semibold mb-3 text-sm uppercase tracking-wide">
               Nombre del hogar
             </label>
             <input
               type="text"
               value={familyName}
               onChange={(e) => setFamilyName(e.target.value)}
-              placeholder="Ej: Casa García, Piso Malasaña..."
-              className="w-full px-5 py-4 rounded-2xl border-2 border-gray-200 focus:border-orange-400 focus:ring-4 focus:ring-orange-100 outline-none text-lg transition-all"
+              placeholder="Casa García, Piso Malasaña..."
+              className="input-field text-lg"
               autoFocus
             />
           </div>
@@ -242,7 +308,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
           <button
             onClick={() => setStep(2)}
             disabled={!familyName.trim()}
-            className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-5 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn-primary w-full text-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Continuar →
           </button>
@@ -251,48 +317,62 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
     );
   }
 
+  // Pantalla de crear - paso 2: miembros
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-blue-50 flex items-center justify-center p-6">
-      <div className="w-full max-w-md animate-fade-in">
+    <div className="min-h-screen bg-mesh flex items-center justify-center p-6 relative overflow-hidden">
+      <div className="blob blob-mint w-64 h-64 -top-20 -right-20" />
+      <div className="blob blob-lavender w-80 h-80 -bottom-32 -left-32" />
+
+      <div className="w-full max-w-md animate-slide-up relative z-10">
         <button
           onClick={() => setStep(1)}
-          className="mb-6 text-gray-600 hover:text-gray-800 flex items-center gap-2"
+          className="mb-8 text-gray-500 hover:text-gray-800 flex items-center gap-2 font-medium transition-colors haptic"
         >
-          ← Volver
+          <span className="text-xl">←</span> Volver
         </button>
 
+        {/* Progress indicator */}
+        <div className="flex gap-2 mb-8">
+          <div className="flex-1 h-1.5 rounded-full bg-mint-500" />
+          <div className="flex-1 h-1.5 rounded-full bg-mint-500" />
+        </div>
+
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-800 mb-2">
+          <h2 className="font-display text-3xl font-bold text-gray-800 mb-2">
             ¿Quiénes vivís aquí?
           </h2>
-          <p className="text-gray-600">
-            Añade a todos (familia, pareja, compañeros...)
+          <p className="text-gray-500">
+            Añade a todos los del hogar
           </p>
         </div>
 
-        <div className="space-y-3 mb-6 max-h-96 overflow-y-auto">
+        <div className="space-y-3 mb-6 max-h-80 overflow-y-auto pr-1">
           {members.map((member, index) => {
             const color = MEMBER_COLORS[member.colorIndex];
             return (
-              <div key={index} className="bg-white/70 backdrop-blur-sm rounded-2xl p-4 shadow-md border border-white/80">
+              <div 
+                key={index} 
+                className="glass-card p-4 animate-scale-in"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
                 <div className="flex gap-3 items-center">
                   <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center font-bold text-xl flex-shrink-0"
+                    className="w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-xl flex-shrink-0 transition-all"
                     style={{ backgroundColor: color.bg, color: color.text }}
                   >
-                    {member.name ? member.name.charAt(0).toUpperCase() : '?'}
+                    {member.name ? member.name.charAt(0).toUpperCase() : '👤'}
                   </div>
                   <input
                     type="text"
                     value={member.name}
                     onChange={(e) => updateMember(index, e.target.value)}
                     placeholder="Nombre"
-                    className="flex-1 px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-400 focus:ring-4 focus:ring-orange-100 outline-none transition-all"
+                    className="flex-1 px-4 py-3 rounded-xl bg-white/50 border-2 border-gray-200/60 focus:border-mint-400 focus:ring-4 focus:ring-mint-100 outline-none transition-all"
                   />
                   {members.length > 1 && (
                     <button
                       onClick={() => removeMember(index)}
-                      className="px-3 py-2 text-red-500 hover:bg-red-50 rounded-xl transition-colors"
+                      className="w-10 h-10 rounded-xl text-gray-400 hover:text-coral-500 hover:bg-coral-50 transition-all haptic"
                     >
                       ✕
                     </button>
@@ -306,19 +386,32 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
         <button
           onClick={addMember}
           disabled={members.length >= 6}
-          className="w-full bg-white/70 backdrop-blur-sm border-2 border-dashed border-gray-300 text-gray-600 py-4 rounded-2xl font-semibold hover:border-orange-400 hover:text-orange-600 transition-all mb-6 disabled:opacity-50"
+          className="w-full glass-card border-2 border-dashed border-gray-300/60 text-gray-500 py-4 font-semibold hover:border-mint-400 hover:text-mint-600 transition-all mb-6 disabled:opacity-50 haptic"
         >
           + Añadir persona
         </button>
 
-        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+        {error && (
+          <p className="text-coral-500 text-center mb-4 flex items-center justify-center gap-2">
+            <span>⚠️</span> {error}
+          </p>
+        )}
 
         <button
           onClick={handleCreate}
           disabled={members.filter(m => m.name.trim()).length === 0 || loading}
-          className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-5 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="btn-primary w-full text-lg disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? 'Creando...' : '¡Empezar! 🎉'}
+          {loading ? (
+            <span className="flex items-center justify-center gap-2">
+              <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              Creando...
+            </span>
+          ) : (
+            <span className="flex items-center justify-center gap-2">
+              ¡Empezar! <span className="text-xl">🎉</span>
+            </span>
+          )}
         </button>
       </div>
     </div>

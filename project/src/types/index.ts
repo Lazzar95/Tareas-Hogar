@@ -34,32 +34,41 @@ export interface ShoppingItem {
   created_at: string;
 }
 
+// Paleta de colores moderna anti-reactante
+// Diseño psicológico: colores que generan dopamina sin agresividad
 export const MEMBER_COLORS = [
-  { bg: '#fce8df', text: '#E77447', ring: '#f39268', gradient: 'from-terracota-500 to-terracota-400' },
-  { bg: '#dbeef7', text: '#2A7BA0', ring: '#4a9ec9', gradient: 'from-mar-500 to-mar-400' },
-  { bg: '#e8ede0', text: '#6B8E5A', ring: '#8ba675', gradient: 'from-oliva-500 to-oliva-400' },
-  { bg: '#f3e8ff', text: '#9333ea', ring: '#a855f7', gradient: 'from-purple-500 to-purple-400' },
-  { bg: '#fce7f3', text: '#db2777', ring: '#ec4899', gradient: 'from-pink-500 to-pink-400' },
-  { bg: '#fef3c7', text: '#d97706', ring: '#f59e0b', gradient: 'from-amber-500 to-amber-400' }
+  // Mint - Calma + Productividad
+  { bg: '#ccfbef', text: '#0d9488', ring: '#14b8a6', gradient: 'from-mint-500 to-mint-400', name: 'mint' },
+  // Coral - Energía suave
+  { bg: '#ffede8', text: '#ed4c2c', ring: '#ff6b4a', gradient: 'from-coral-500 to-coral-400', name: 'coral' },
+  // Lavender - Creatividad + Premium
+  { bg: '#f3e8ff', text: '#9333ea', ring: '#a855f7', gradient: 'from-lavender-500 to-lavender-400', name: 'lavender' },
+  // Sky - Confianza + Serenidad  
+  { bg: '#e0f2fe', text: '#0284c7', ring: '#0ea5e9', gradient: 'from-sky-500 to-sky-400', name: 'sky' },
+  // Sunny - Optimismo
+  { bg: '#fef9c3', text: '#ca8a04', ring: '#eab308', gradient: 'from-sunny-500 to-sunny-400', name: 'sunny' },
+  // Rose - Calidez emocional
+  { bg: '#ffe4e6', text: '#e11d48', ring: '#f43f5e', gradient: 'from-rose-500 to-rose-400', name: 'rose' }
 ];
 
+// Iconos más expresivos con emojis modernos
 export const TASK_ICONS: Record<string, string> = {
-  compras: '🛒',
+  compras: '🛍️',
   limpieza: '✨',
-  cocina: '👨‍🍳',
-  basura: '🗑️',
-  fregar: '🍽️',
+  cocina: '🍳',
+  basura: '♻️',
+  fregar: '🫧',
   lavadora: '🧺',
-  tender: '👔',
-  planchar: '👗',
+  tender: '👕',
+  planchar: '✨',
   doblar: '📦',
-  aspirar: '🌪️',
+  aspirar: '🌀',
   barrer: '🧹',
-  mascotas: '🐕',
-  jardin: '🌱',
-  niños: '👶',
-  facturas: '💰',
-  otros: '📋'
+  mascotas: '🐾',
+  jardin: '🌿',
+  niños: '🧸',
+  facturas: '💳',
+  otros: '📝'
 };
 
 export const CATEGORIES = Object.keys(TASK_ICONS);

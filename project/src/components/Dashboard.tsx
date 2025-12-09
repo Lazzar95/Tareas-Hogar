@@ -93,14 +93,32 @@ export default function Dashboard({ family, members }: DashboardProps) {
   const totalTasks = tasks.length;
   const completionPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
+  // Determinar el color del progreso según porcentaje
+  const getProgressColor = () => {
+    if (completionPercentage >= 80) return { start: '#14b8a6', end: '#0d9488' }; // mint
+    if (completionPercentage >= 50) return { start: '#facc15', end: '#eab308' }; // sunny
+    return { start: '#ff6b4a', end: '#ed4c2c' }; // coral
+  };
+
+  const progressColor = getProgressColor();
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-blue-50 pb-24">
+    <div className="min-h-screen bg-mesh pb-32 relative overflow-hidden">
+      {/* Blobs decorativos */}
+      <div className="blob blob-mint w-96 h-96 -top-48 -right-48 fixed" />
+      <div className="blob blob-lavender w-80 h-80 -bottom-40 -left-40 fixed" />
+
+      {/* Toast notification */}
       {notification && (
-        <div className="fixed top-6 right-6 bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl z-50 p-5 border-l-4 border-green-500 animate-slide-in-right max-w-sm">
-          <p className="font-semibold text-gray-800">{notification}</p>
+        <div className="toast toast-success animate-slide-down">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">🎉</span>
+            <p className="font-semibold text-gray-800">{notification}</p>
+          </div>
         </div>
       )}
 
+      {/* Modal de código familiar */}
       {showFamilyCode && (
         <FamilyCodeModal
           familyCode={family.code}
@@ -108,93 +126,98 @@ export default function Dashboard({ family, members }: DashboardProps) {
         />
       )}
 
-      <div className="bg-white/70 backdrop-blur-sm sticky top-0 z-40 border-b border-gray-100 shadow-sm">
-        <div className="max-w-4xl mx-auto px-6 py-5">
+      {/* Header sticky con glassmorphism */}
+      <header className="header-sticky">
+        <div className="max-w-2xl mx-auto px-6 py-5">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-800">
+              <h1 className="font-display text-2xl font-bold text-gray-800">
                 {family.name}
               </h1>
               <button
                 onClick={() => setShowFamilyCode(true)}
-                className="text-sm text-gray-600 hover:text-orange-500 font-mono mt-1 transition-colors"
+                className="text-sm text-gray-500 hover:text-mint-600 font-mono mt-0.5 transition-colors flex items-center gap-1.5"
               >
-                Código: {family.code}
+                <span className="w-1.5 h-1.5 rounded-full bg-mint-400 animate-pulse" />
+                {family.code}
               </button>
             </div>
-            <div className="relative">
-              <svg width="80" height="80" className="transform -rotate-90">
+
+            {/* Progress ring */}
+            <div className="relative group cursor-pointer" title={`${completedTasks}/${totalTasks} tareas`}>
+              <svg width="72" height="72" className="progress-ring">
                 <circle
-                  cx="40"
-                  cy="40"
-                  r="32"
-                  stroke="rgba(0,0,0,0.08)"
-                  strokeWidth="7"
+                  cx="36"
+                  cy="36"
+                  r="28"
+                  stroke="rgba(0,0,0,0.05)"
+                  strokeWidth="6"
                   fill="none"
                 />
                 <circle
-                  cx="40"
-                  cy="40"
-                  r="32"
-                  stroke="url(#gradient)"
-                  strokeWidth="7"
+                  cx="36"
+                  cy="36"
+                  r="28"
+                  stroke="url(#progressGradient)"
+                  strokeWidth="6"
                   fill="none"
-                  strokeDasharray={2 * Math.PI * 32}
-                  strokeDashoffset={2 * Math.PI * 32 * (1 - completionPercentage / 100)}
+                  strokeDasharray={2 * Math.PI * 28}
+                  strokeDashoffset={2 * Math.PI * 28 * (1 - completionPercentage / 100)}
                   strokeLinecap="round"
-                  className="transition-all duration-500"
+                  className="progress-ring__circle"
                 />
                 <defs>
-                  <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#6B8E5A" />
-                    <stop offset="100%" stopColor="#8ba675" />
+                  <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor={progressColor.start} />
+                    <stop offset="100%" stopColor={progressColor.end} />
                   </linearGradient>
                 </defs>
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="font-bold text-gray-800 text-xl">{completionPercentage}%</span>
+                <span className="font-display font-bold text-gray-800 text-lg group-hover:scale-110 transition-transform">
+                  {completionPercentage}%
+                </span>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      <div className="max-w-4xl mx-auto px-6 py-5">
-        <div className="flex gap-2 bg-white/70 backdrop-blur-sm rounded-2xl p-2 shadow-md border border-white/80">
+      {/* Tab bar moderna */}
+      <div className="max-w-2xl mx-auto px-6 py-4">
+        <div className="tab-bar">
           <button
             onClick={() => setView('tasks')}
-            className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-all ${
-              view === 'tasks'
-                ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg'
-                : 'text-gray-600 hover:bg-white'
-            }`}
+            className={`tab-item ${view === 'tasks' ? 'tab-item-active' : ''}`}
           >
-            📋 Tareas
+            <span className="flex items-center justify-center gap-2">
+              <span>📋</span>
+              <span>Tareas</span>
+            </span>
           </button>
           <button
             onClick={() => setView('shopping')}
-            className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-all ${
-              view === 'shopping'
-                ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg'
-                : 'text-gray-600 hover:bg-white'
-            }`}
+            className={`tab-item ${view === 'shopping' ? 'tab-item-active' : ''}`}
           >
-            🛒 Compra
+            <span className="flex items-center justify-center gap-2">
+              <span>🛍️</span>
+              <span>Compra</span>
+            </span>
           </button>
           <button
             onClick={() => setView('stats')}
-            className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-all ${
-              view === 'stats'
-                ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg'
-                : 'text-gray-600 hover:bg-white'
-            }`}
+            className={`tab-item ${view === 'stats' ? 'tab-item-active' : ''}`}
           >
-            📊 Stats
+            <span className="flex items-center justify-center gap-2">
+              <span>📊</span>
+              <span>Stats</span>
+            </span>
           </button>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-6">
+      {/* Content area */}
+      <main className="max-w-2xl mx-auto px-6 relative z-10">
         {view === 'tasks' && (
           <TaskList
             tasks={tasks}
@@ -218,8 +241,22 @@ export default function Dashboard({ family, members }: DashboardProps) {
             members={members}
           />
         )}
-      </div>
+      </main>
 
+      {/* FAB para añadir tarea (solo en vista de tareas) */}
+      {view === 'tasks' && (
+        <button
+          onClick={() => setShowAddTask(true)}
+          className="fab"
+          aria-label="Añadir tarea"
+        >
+          <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+          </svg>
+        </button>
+      )}
+
+      {/* Modal de añadir tarea */}
       {showAddTask && (
         <AddTaskModal
           family={family}
