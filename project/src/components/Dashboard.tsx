@@ -62,11 +62,45 @@ export default function Dashboard({ family, members }: DashboardProps) {
     if (data) setShopping(data);
   };
 
+  const addShoppingItem = async (name: string) => {
+    const { data } = await supabase
+      .from('shopping_items')
+      .insert({
+        family_id: family.id,
+        name: name.trim(),
+        checked: false
+      })
+      .select()
+      .single();
+
+    if (data) setShopping(prev => [data, ...prev]);
+  };
+
+  const toggleShoppingItem = async (id: string, checked: boolean) => {
+    setShopping(prev => prev.map(item => item.id === id ? { ...item, checked: !checked } : item));
+    await supabase
+      .from('shopping_items')
+      .update({ checked: !checked })
+      .eq('id', id);
+  };
+
+  const deleteShoppingItem = async (id: string) => {
+    setShopping(prev => prev.filter(item => item.id !== id));
+    await supabase.from('shopping_items').delete().eq('id', id);
+  };
+
   const toggleTask = async (id: string) => {
     const task = tasks.find(t => t.id === id);
     if (!task) return;
 
     const newCompleted = !task.completed;
+    // Optimista: actualiza UI antes de la respuesta
+    setTasks(prev => prev.map(t =>
+      t.id === id
+        ? { ...t, completed: newCompleted, completed_at: newCompleted ? new Date().toISOString() : null }
+        : t
+    ));
+
     await supabase
       .from('tasks')
       .update({
@@ -81,7 +115,12 @@ export default function Dashboard({ family, members }: DashboardProps) {
   };
 
   const deleteTask = async (id: string) => {
+    setTasks(prev => prev.filter(t => t.id !== id));
     await supabase.from('tasks').delete().eq('id', id);
+  };
+
+  const addTaskLocal = (task: Task) => {
+    setTasks(prev => [task, ...prev]);
   };
 
   const showNotification = (message: string) => {
@@ -231,7 +270,9 @@ export default function Dashboard({ family, members }: DashboardProps) {
         {view === 'shopping' && (
           <ShoppingList
             items={shopping}
-            familyId={family.id}
+            onAdd={addShoppingItem}
+            onToggle={toggleShoppingItem}
+            onDelete={deleteShoppingItem}
           />
         )}
 
@@ -261,6 +302,7 @@ export default function Dashboard({ family, members }: DashboardProps) {
         <AddTaskModal
           family={family}
           members={members}
+          onCreated={addTaskLocal}
           onClose={() => setShowAddTask(false)}
         />
       )}

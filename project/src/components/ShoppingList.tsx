@@ -1,13 +1,14 @@
 import { useState } from 'react';
-import { supabase } from '../lib/supabase';
 import type { ShoppingItem } from '../types';
 
 interface ShoppingListProps {
   items: ShoppingItem[];
-  familyId: string;
+  onAdd: (name: string) => Promise<void> | void;
+  onToggle: (id: string, checked: boolean) => Promise<void> | void;
+  onDelete: (id: string) => Promise<void> | void;
 }
 
-export default function ShoppingList({ items, familyId }: ShoppingListProps) {
+export default function ShoppingList({ items, onAdd, onToggle, onDelete }: ShoppingListProps) {
   const [newItem, setNewItem] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -15,26 +16,18 @@ export default function ShoppingList({ items, familyId }: ShoppingListProps) {
     e.preventDefault();
     if (!newItem.trim()) return;
 
-    await supabase.from('shopping_items').insert({
-      family_id: familyId,
-      name: newItem.trim(),
-      checked: false
-    });
-
+    await onAdd(newItem.trim());
     setNewItem('');
   };
 
   const toggleItem = async (id: string, checked: boolean) => {
-    await supabase
-      .from('shopping_items')
-      .update({ checked: !checked })
-      .eq('id', id);
+    await onToggle(id, checked);
   };
 
   const deleteItem = async (id: string) => {
     setDeletingId(id);
     setTimeout(async () => {
-      await supabase.from('shopping_items').delete().eq('id', id);
+      await onDelete(id);
       setDeletingId(null);
     }, 200);
   };

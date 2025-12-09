@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import type { Family, FamilyMember } from '../types';
+import type { Family, FamilyMember, Task } from '../types';
 import { TASK_ICONS, CATEGORIES, FREQUENCIES, MEMBER_COLORS } from '../types';
 
 interface AddTaskModalProps {
   family: Family;
   members: FamilyMember[];
+  onCreated: (task: Task) => void;
   onClose: () => void;
 }
 
-export default function AddTaskModal({ family, members, onClose }: AddTaskModalProps) {
+export default function AddTaskModal({ family, members, onCreated, onClose }: AddTaskModalProps) {
   const [formData, setFormData] = useState({
     title: '',
     category: 'limpieza',
@@ -24,14 +25,22 @@ export default function AddTaskModal({ family, members, onClose }: AddTaskModalP
 
     setLoading(true);
     try {
-      await supabase.from('tasks').insert({
-        family_id: family.id,
-        title: formData.title.trim(),
-        category: formData.category,
-        assigned_to: formData.assigned_to,
-        frequency: formData.frequency,
-        completed: false
-      });
+      const { data } = await supabase
+        .from('tasks')
+        .insert({
+          family_id: family.id,
+          title: formData.title.trim(),
+          category: formData.category,
+          assigned_to: formData.assigned_to,
+          frequency: formData.frequency,
+          completed: false
+        })
+        .select()
+        .single();
+
+      if (data) {
+        onCreated(data as Task);
+      }
 
       onClose();
     } catch (error) {
