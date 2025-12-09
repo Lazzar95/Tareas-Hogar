@@ -27,3 +27,4 @@ npm-debug.log*
 
 # PWA dev files
 dev-dist
+supabase/.temp/
