@@ -7,8 +7,8 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'prompt',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icon-192x192.svg', 'icon-512x512.svg', 'sw-push.js'],
+      registerType: 'autoUpdate',
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icon-192x192.svg', 'icon-512x512.svg'],
       manifest: {
         name: 'Tareas Hogar - Organización Familiar',
         short_name: 'TareasHogar',
@@ -60,8 +60,6 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        // Importar el SW de push notifications
-        importScripts: ['sw-push.js'],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -70,7 +68,7 @@ export default defineConfig({
               cacheName: 'google-fonts-cache',
               expiration: {
                 maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 año
               },
               cacheableResponse: {
                 statuses: [0, 200]
@@ -98,7 +96,7 @@ export default defineConfig({
               cacheName: 'supabase-cache',
               expiration: {
                 maxEntries: 50,
-                maxAgeSeconds: 60 * 5
+                maxAgeSeconds: 60 * 5 // 5 minutos
               },
               cacheableResponse: {
                 statuses: [0, 200]

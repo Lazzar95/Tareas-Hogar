@@ -19,20 +19,49 @@ export function useNotifications() {
   };
 
   const showNotification = (title: string, options?: NotificationOptions) => {
+    // Verificar si el documento está oculto (app en segundo plano)
+    const isBackground = document.hidden;
+    
     if ('Notification' in window && Notification.permission === 'granted') {
       try {
+        // Vibrar el dispositivo si está disponible
+        if ('vibrate' in navigator) {
+          navigator.vibrate([200, 100, 200]);
+        }
+
         const notification = new Notification(title, {
-          icon: '/icon-192x192.png',
-          badge: '/icon-192x192.png',
+          icon: '/icon-192x192.svg',
+          badge: '/icon-192x192.svg',
+          requireInteraction: isBackground, // Mantener notificación si está en background
+          silent: false,
           ...options
         });
 
-        // Auto-cerrar después de 5 segundos
-        setTimeout(() => notification.close(), 5000);
+        // Al hacer clic, enfocar la ventana
+        notification.onclick = () => {
+          window.focus();
+          notification.close();
+        };
+
+        // Auto-cerrar solo si está en primer plano
+        if (!isBackground) {
+          setTimeout(() => notification.close(), 5000);
+        }
 
         return notification;
       } catch (error) {
-        console.error('Error showing notification:', error);
+        // Fallback para Service Worker notifications (PWA instalada)
+        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+          navigator.serviceWorker.ready.then(registration => {
+            registration.showNotification(title, {
+              icon: '/icon-192x192.svg',
+              badge: '/icon-192x192.svg',
+              vibrate: [200, 100, 200],
+              requireInteraction: isBackground,
+              ...options
+            });
+          });
+        }
       }
     }
   };

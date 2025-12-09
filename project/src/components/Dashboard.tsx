@@ -8,6 +8,7 @@ import Stats from './Stats';
 import AddTaskModal from './AddTaskModal';
 import FamilyCodeModal from './FamilyCodeModal';
 import { useNotifications } from '../hooks/useNotifications';
+import { subscribeToPush, sendPushToFamily } from '../lib/pushNotifications';
 
 interface DashboardProps {
   family: Family;
@@ -32,9 +33,12 @@ export default function Dashboard({ family, members }: DashboardProps) {
     const savedMember = localStorage.getItem(`currentMember_${family.code}`);
     if (savedMember && members.find(m => m.name === savedMember)) {
       setCurrentMember(savedMember);
+      // Suscribir a push notifications
+      subscribeToPush(family.id, savedMember);
     } else if (members.length === 1) {
       setCurrentMember(members[0].name);
       localStorage.setItem(`currentMember_${family.code}`, members[0].name);
+      subscribeToPush(family.id, members[0].name);
     }
 
     // Solicitar permisos de notificación
@@ -189,10 +193,19 @@ export default function Dashboard({ family, members }: DashboardProps) {
     if (data) {
       setShopping(prev => [data, ...prev]);
       recentEvents.current.add(`shopping_items:INSERT:${data.id}`);
+      // Enviar push a otros miembros
+      sendPushToFamily(
+        family.id,
+        currentMember,
+        '🛍️ Nuevo en la lista',
+        `${currentMember} añadió: "${name.trim()}"`,
+        `shopping-${data.id}`
+      );
     }
   };
 
   const toggleShoppingItem = async (id: string, checked: boolean) => {
+    const item = shopping.find(i => i.id === id);
     setShopping(prev => prev.map(item => item.id === id ? { ...item, checked: !checked } : item));
     await supabase
       .from('shopping_items')
@@ -200,6 +213,17 @@ export default function Dashboard({ family, members }: DashboardProps) {
       .eq('id', id);
 
     recentEvents.current.add(`shopping_items:UPDATE:${id}`);
+    
+    // Enviar push si se marca como comprado
+    if (!checked && item) {
+      sendPushToFamily(
+        family.id,
+        currentMember,
+        '✅ Comprado',
+        `${currentMember} compró: "${item.name}"`,
+        `shopping-${id}`
+      );
+    }
   };
 
   const deleteShoppingItem = async (id: string) => {
@@ -234,6 +258,14 @@ export default function Dashboard({ family, members }: DashboardProps) {
 
     if (newCompleted) {
       showNotification(`¡${task.assigned_to} completó "${task.title}"! ✨`);
+      // Enviar push a otros miembros
+      sendPushToFamily(
+        family.id,
+        currentMember,
+        '✅ Tarea completada',
+        `${currentMember} completó: "${task.title}"`,
+        `task-${id}`
+      );
     }
   };
 
@@ -247,6 +279,14 @@ export default function Dashboard({ family, members }: DashboardProps) {
   const addTaskLocal = (task: Task) => {
     setTasks(prev => [task, ...prev]);
     recentEvents.current.add(`tasks:INSERT:${task.id}`);
+    // Enviar push a otros miembros
+    sendPushToFamily(
+      family.id,
+      currentMember,
+      '📋 Nueva tarea',
+      `${currentMember} añadió tarea para ${task.assigned_to}: "${task.title}"`,
+      `task-${task.id}`
+    );
   };
 
   const showNotification = (message: string) => {
@@ -270,6 +310,8 @@ export default function Dashboard({ family, members }: DashboardProps) {
   const selectMember = (memberName: string) => {
     setCurrentMember(memberName);
     localStorage.setItem(`currentMember_${family.code}`, memberName);
+    // Suscribir a push notifications
+    subscribeToPush(family.id, memberName);
   };
 
   // Si hay más de un miembro y no hay currentMember, mostrar modal de selección
