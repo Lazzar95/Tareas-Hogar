@@ -42,6 +42,30 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
     setError('');
 
     try {
+      // 1) Comprobar si ya existe un hogar con el mismo nombre (evita duplicados al reinstalar PWA)
+      const { data: existingFamily, error: searchError } = await supabase
+        .from('families')
+        .select('*')
+        .ilike('name', familyName.trim())
+        .maybeSingle();
+
+      if (searchError) throw searchError;
+
+      if (existingFamily) {
+        // Reutilizar hogar existente: no crear duplicado
+        const { data: familyMembers, error: membersError } = await supabase
+          .from('family_members')
+          .select('*')
+          .eq('family_id', existingFamily.id)
+          .order('created_at', { ascending: true });
+
+        if (membersError) throw membersError;
+
+        onComplete(existingFamily, familyMembers || []);
+        return;
+      }
+
+      // 2) Crear hogar nuevo si no existe
       const code = generateFamilyCode();
 
       const { data: family, error: familyError } = await supabase
