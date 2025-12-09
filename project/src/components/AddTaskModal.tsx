@@ -52,11 +52,6 @@ export default function AddTaskModal({ family, members, onCreated, onClose, curr
     }
   };
 
-  const getMemberColor = (name: string) => {
-    const member = members.find(m => m.name === name);
-    return member ? MEMBER_COLORS[member.color_index] : MEMBER_COLORS[0];
-  };
-
   return (
     <div 
       className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-6 animate-fade-in"

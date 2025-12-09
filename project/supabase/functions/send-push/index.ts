@@ -17,7 +17,14 @@ interface PushPayload {
   tag?: string;
 }
 
-serve(async (req) => {
+interface SubscriptionRow {
+  endpoint: string;
+  p256dh: string;
+  auth: string;
+  member_name: string;
+}
+
+serve(async (req: Request) => {
   // Handle CORS
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -41,7 +48,7 @@ serve(async (req) => {
       .from("push_subscriptions")
       .select("*")
       .eq("family_id", family_id)
-      .neq("member_name", sender_name);
+      .neq("member_name", sender_name) as { data: SubscriptionRow[] | null; error: any };
 
     if (error) throw error;
 
@@ -73,7 +80,7 @@ serve(async (req) => {
 
     // Enviar a todas las suscripciones
     const results = await Promise.allSettled(
-      subscriptions.map(async (sub) => {
+      subscriptions.map(async (sub: SubscriptionRow) => {
         const pushSubscription = {
           endpoint: sub.endpoint,
           keys: {
@@ -98,7 +105,7 @@ serve(async (req) => {
       })
     );
 
-    const sent = results.filter((r) => r.status === "fulfilled" && (r.value as any).success).length;
+    const sent = results.filter((r: PromiseSettledResult<any>) => r.status === "fulfilled" && (r.value as any).success).length;
 
     return new Response(
       JSON.stringify({ success: true, sent, total: subscriptions.length }),
