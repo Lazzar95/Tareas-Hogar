@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { generateFamilyCode } from '../lib/supabase';
+import { supabase, generateFamilyCode } from '../lib/supabase';
 import type { Family, FamilyMember } from '../types';
 import { MEMBER_COLORS } from '../types';
 
@@ -43,23 +43,27 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
 
     try {
       const code = generateFamilyCode();
-      const familyId = `family_${Date.now()}`;
 
-      // Crear datos locales sin Supabase
-      const family: Family = {
-        id: familyId,
-        name: familyName,
-        code,
-        created_at: new Date().toISOString()
-      };
+      const { data: family, error: familyError } = await supabase
+        .from('families')
+        .insert({ name: familyName, code })
+        .select()
+        .single();
 
-      const createdMembers: FamilyMember[] = validMembers.map((m, i) => ({
-        id: `member_${Date.now()}_${i}`,
-        family_id: familyId,
+      if (familyError) throw familyError;
+
+      const memberInserts = validMembers.map((m, i) => ({
+        family_id: family.id,
         name: m.name,
-        color_index: i % MEMBER_COLORS.length,
-        created_at: new Date().toISOString()
+        color_index: i % MEMBER_COLORS.length
       }));
+
+      const { data: createdMembers, error: membersError } = await supabase
+        .from('family_members')
+        .insert(memberInserts)
+        .select();
+
+      if (membersError) throw membersError;
 
       onComplete(family, createdMembers);
     } catch (err: any) {
@@ -76,9 +80,28 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
     setError('');
 
     try {
-      // Simulación de unirse sin base de datos
-      // En una versión real, esto buscaría en Supabase
-      setError('La función de unirse estará disponible cuando conectes la base de datos');
+      const { data: family, error: familyError } = await supabase
+        .from('families')
+        .select('*')
+        .eq('code', joinCode.toUpperCase())
+        .maybeSingle();
+
+      if (familyError) throw familyError;
+      if (!family) {
+        setError('Código no válido');
+        setLoading(false);
+        return;
+      }
+
+      const { data: familyMembers, error: membersError } = await supabase
+        .from('family_members')
+        .select('*')
+        .eq('family_id', family.id)
+        .order('created_at', { ascending: true });
+
+      if (membersError) throw membersError;
+
+      onComplete(family, familyMembers);
     } catch (err: any) {
       setError(err.message);
     } finally {
