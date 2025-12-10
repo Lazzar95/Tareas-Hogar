@@ -104,15 +104,22 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
     setError('');
 
     try {
+      // Normalizar código: eliminar espacios, convertir a mayúsculas
+      const normalizedCode = joinCode.trim().toUpperCase().replace(/\s/g, '');
+      
+      console.log('Buscando familia con código:', normalizedCode);
+
       const { data: family, error: familyError } = await supabase
         .from('families')
         .select('*')
-        .eq('code', joinCode.toUpperCase())
+        .eq('code', normalizedCode)
         .maybeSingle();
+
+      console.log('Resultado búsqueda:', { family, error: familyError });
 
       if (familyError) throw familyError;
       if (!family) {
-        setError('Código no válido');
+        setError('Código no válido. Verifica que esté bien escrito.');
         setLoading(false);
         return;
       }
@@ -127,6 +134,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
 
       onComplete(family, familyMembers);
     } catch (err: any) {
+      console.error('Error al unirse a familia:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -257,9 +265,22 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
               autoFocus
             />
             {error && (
-              <p className="text-coral-500 text-sm mt-3 flex items-center gap-2">
-                <span>⚠️</span> {error}
-              </p>
+              <div className="mt-4 bg-coral-50 border border-coral-200 rounded-xl p-4">
+                <p className="text-coral-700 text-sm font-medium flex items-center gap-2 mb-2">
+                  <span>⚠️</span> {error}
+                </p>
+                <p className="text-xs text-gray-600">
+                  Asegúrate de copiar el código exactamente como aparece en el header del hogar creado.
+                </p>
+              </div>
+            )}
+            
+            {!error && joinCode.length === 6 && (
+              <div className="mt-3 text-center">
+                <p className="text-xs text-gray-500">
+                  ✓ Código completo ({joinCode.length}/6 caracteres)
+                </p>
+              </div>
             )}
           </div>
 

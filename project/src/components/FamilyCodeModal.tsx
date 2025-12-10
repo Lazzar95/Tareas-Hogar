@@ -65,10 +65,18 @@ export default function FamilyCodeModal({ familyCode, onClose }: FamilyCodeModal
           </div>
 
           {/* Código destacado */}
-          <div className="glass-card p-6 mb-6 text-center relative overflow-hidden">
+          <div className="glass-card p-6 mb-4 text-center relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-lavender-50 to-mint-50 opacity-50" />
             <p className="relative text-4xl font-mono font-bold text-gradient tracking-[0.3em]">
               {familyCode}
+            </p>
+          </div>
+
+          {/* Nota de ayuda */}
+          <div className="bg-mint-50 border border-mint-200 rounded-xl p-4 mb-6">
+            <p className="text-xs text-gray-600 text-center">
+              <strong className="text-mint-700">💡 Tip:</strong> Copia y pega el código para evitar errores.
+              <br />Los códigos solo usan letras y números (no símbolos).
             </p>
           </div>
 
